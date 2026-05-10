@@ -17,10 +17,20 @@ export default async function handler(req, res) {
       return res.status(200).json(cache.data);
     }
 
-    const rawPosts = await kv.lrange('posts', 0, -1);
-    const posts = (rawPosts || []).map(function(p) {
-      return typeof p === 'string' ? JSON.parse(p) : p;
-    });
+    // 先尝试新格式 (lpush/lrange Redis List)
+    let rawPosts = await kv.lrange('posts', 0, -1);
+
+    let posts;
+    if (rawPosts && rawPosts.length > 0) {
+      // 新格式：每个元素是 JSON 字符串
+      posts = rawPosts.map(function(p) {
+        return typeof p === 'string' ? JSON.parse(p) : p;
+      });
+    } else {
+      // 回退旧格式 (kv.set 存 JSON 数组)
+      const oldData = await kv.get('posts');
+      posts = oldData || [];
+    }
 
     // 更新缓存
     cache = { data: posts, timestamp: now };

@@ -127,11 +127,24 @@ export default async function handler(req, res) {
       createdAt: new Date().toISOString()
     };
 
-    // 原子操作：lpush 避免竞态条件
+    // 原子操作：lpush 避免竞态条件（自动兼容旧格式迁移）
     try {
       await kv.lpush('posts', JSON.stringify(newPost));
     } catch (e) {
-      return res.status(500).json({ error: 'KV存储失败（文件已上传）: ' + e.message });
+      // lpush 失败可能是旧格式（String 类型）冲突，尝试迁移
+      try {
+        const oldData = await kv.get('posts');
+        await kv.del('posts');
+        if (oldData && Array.isArray(oldData)) {
+          // 反转后逐个 lpush，保持时间顺序（最新在前）
+          for (let i = oldData.length - 1; i >= 0; i--) {
+            await kv.lpush('posts', JSON.stringify(oldData[i]));
+          }
+        }
+        await kv.lpush('posts', JSON.stringify(newPost));
+      } catch (e2) {
+        return res.status(500).json({ error: 'KV存储失败（文件已上传）: ' + e2.message });
+      }
     }
 
     return res.status(200).json({ success: true, post: newPost });

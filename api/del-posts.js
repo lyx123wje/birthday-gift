@@ -11,11 +11,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 获取所有帖子
-    const rawPosts = await kv.lrange('posts', 0, -1);
-    const posts = (rawPosts || []).map(function(p) {
-      return typeof p === 'string' ? JSON.parse(p) : p;
-    });
+    // 获取所有帖子（兼容新旧两种格式）
+    let rawPosts = await kv.lrange('posts', 0, -1);
+    let posts;
+    if (rawPosts && rawPosts.length > 0) {
+      posts = rawPosts.map(function(p) {
+        return typeof p === 'string' ? JSON.parse(p) : p;
+      });
+    } else {
+      // 回退旧格式
+      const oldData = await kv.get('posts');
+      posts = oldData || [];
+    }
 
     let deletedBlobs = 0;
     let failedBlobs = 0;
@@ -34,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // 清空 KV 列表
+    // 清空 KV（无论哪种格式）
     await kv.del('posts');
 
     return res.status(200).json({
