@@ -1,6 +1,6 @@
-# 易烊千玺风格个人网站 · 使用指南
+# 二十一一 · 使用指南
 
-基于 [xiqianyangyi.com](https://www.xiqianyangyi.com) 的设计风格复刻，一个极简的数字日记式个人网站。
+一个极简的数字日记式个人网站，一一21.0版本宇宙。
 
 ---
 
@@ -10,9 +10,7 @@
 yyqx/
 ├── index.html      ← 首页（起点）
 ├── subIndex.html   ← 导航枢纽
-├── feed.html       ← 动态流（核心）
-├── stream.html     ← 流芳（情绪投递）
-├── audio.html      ← 锵锵（音频空间）
+├── feed.html       ← 二十一一（核心）
 └── README.md       ← 本文件
 ```
 
@@ -43,24 +41,19 @@ python -m http.server 8080
        │ 点击印章
        ▼
 ┌──────────────┐
-│ subIndex.html│  导航枢纽 · 三个入口
+│ subIndex.html│  导航枢纽
 │  (导航页)    │
-└──┬───┬───┬──┘
-   │   │   │
-   ▼   ▼   ▼
- 发自  流  锵
- 天然  芳  锵
-   │
-   ▼
+└──────┬───────┘
+       │
+       ▼
 ┌──────────────┐
-│  feed.html   │  动态流 · 图片卡片 + 时间戳
+│  feed.html   │  二十一一 · 图片卡片 + 时间戳
 │  (核心页)    │
 └──────────────┘
 ```
 
 **返回路径：**
 - `feed.html` → 点击顶部"二十一一" → 回到 `index.html`
-- `stream.html` / `audio.html` → 点击左上角"← 返回" → 回到 `subIndex.html`
 
 ## 如何替换内容
 

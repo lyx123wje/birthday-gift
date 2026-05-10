@@ -1,5 +1,4 @@
 .DS_Store
 Thumbs.db
 *.log
-*.mp4
-nul
+*_backup.*
