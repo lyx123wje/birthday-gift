@@ -18,15 +18,20 @@ export default async function handler(req, res) {
     }
 
     // 先尝试新格式 (lpush/lrange Redis List)
-    let rawPosts = await kv.lrange('posts', 0, -1);
+    // lrange 在 String 类型 key 上会抛 WRONGTYPE 错误，需要 try/catch
+    let posts = null;
+    try {
+      const rawPosts = await kv.lrange('posts', 0, -1);
+      if (rawPosts && rawPosts.length > 0) {
+        posts = rawPosts.map(function(p) {
+          return typeof p === 'string' ? JSON.parse(p) : p;
+        });
+      }
+    } catch (_) {
+      // key 是 String 类型（旧格式），fallback 到 kv.get
+    }
 
-    let posts;
-    if (rawPosts && rawPosts.length > 0) {
-      // 新格式：每个元素是 JSON 字符串
-      posts = rawPosts.map(function(p) {
-        return typeof p === 'string' ? JSON.parse(p) : p;
-      });
-    } else {
+    if (!posts) {
       // 回退旧格式 (kv.set 存 JSON 数组)
       const oldData = await kv.get('posts');
       posts = oldData || [];
