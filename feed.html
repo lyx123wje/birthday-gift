@@ -17,10 +17,6 @@
 
   body {
     background: #0d0d0d;
-    background-image: url('ma.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
     font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -51,16 +47,6 @@
     z-index: 1;
     pointer-events: none;
     background: rgba(0,0,0,0.03);
-  }
-
-  .ma-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    pointer-events: none;
-    background: rgba(0,0,0,0.65);
   }
 
   .wrapper {
@@ -217,21 +203,6 @@
     background: transparent;
   }
 
-  /* ── 浮动小熊 Logo ── */
-  .floating-logo {
-    position: fixed;
-    bottom: 18px;
-    right: 18px;
-    width: clamp(36px, 8vw, 50px);
-    height: clamp(36px, 8vw, 50px);
-    border-radius: 50%;
-    z-index: 20;
-    opacity: 0.45;
-    pointer-events: none;
-    filter: drop-shadow(0 0 8px rgba(100,140,200,0.2));
-    transition: opacity 0.6s ease;
-  }
-
   /* ── 移动端适配 ── */
   @media (max-width: 500px) {
     .wrapper { max-width: 100%; }
@@ -243,8 +214,6 @@
 </style>
 </head>
 <body>
-
-<div class="ma-overlay"></div>
 
 <!-- 背景视频由 JS 动态创建，避免 HTML 标签被夸克等浏览器拦截 -->
 
@@ -401,7 +370,6 @@
 })();
 </script>
 
-<img class="floating-logo" src="xiaoxiong.jpg" alt="">
 
 </body>
 </html>
