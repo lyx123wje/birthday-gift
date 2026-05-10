@@ -12,13 +12,19 @@ export default async function handler(req, res) {
 
   try {
     // 获取所有帖子（兼容新旧两种格式）
-    let rawPosts = await kv.lrange('posts', 0, -1);
-    let posts;
-    if (rawPosts && rawPosts.length > 0) {
-      posts = rawPosts.map(function(p) {
-        return typeof p === 'string' ? JSON.parse(p) : p;
-      });
-    } else {
+    let posts = null;
+    try {
+      const rawPosts = await kv.lrange('posts', 0, -1);
+      if (rawPosts && rawPosts.length > 0) {
+        posts = rawPosts.map(function(p) {
+          return typeof p === 'string' ? JSON.parse(p) : p;
+        });
+      }
+    } catch (_) {
+      // key 是 String 类型（旧格式），fallback 到 kv.get
+    }
+
+    if (!posts) {
       // 回退旧格式
       const oldData = await kv.get('posts');
       posts = oldData || [];
