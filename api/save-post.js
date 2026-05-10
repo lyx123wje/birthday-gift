@@ -100,7 +100,10 @@ export default async function handler(req, res) {
     let mediaItems = [];
     for (let i = 0; i < files.length; i++) {
       try {
-        let blob = await put(files[i].filename, files[i].data, {
+        // 净化文件名：手机可能产生中文文件名，Vercel Blob 只接受 ASCII
+        const ext = files[i].filename.includes('.') ? files[i].filename.substring(files[i].filename.lastIndexOf('.')) : '';
+        const safeName = 'upload_' + Date.now() + '_' + i + ext;
+        let blob = await put(safeName, files[i].data, {
           access: 'public',
           contentType: files[i].contentType
         });
