@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>锵锵</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0e;
+    font-family: 'Noto Serif SC', Georgia, serif;
+    min-height: 100vh;
+    overflow: hidden;
+    cursor: crosshair;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── 彩色流动背景 ── */
+  .flow-bg {
+    position: fixed;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(140,60,120,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(60,100,180,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(180,120,60,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 40% 40%, rgba(100,140,100,0.1) 0%, transparent 40%);
+    animation: flowShift 16s ease-in-out infinite;
+  }
+
+  @keyframes flowShift {
+    0%, 100% {
+      background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+    25% {
+      background-position: 5% 10%, -8% 5%, 3% -5%, -4% 8%;
+    }
+    50% {
+      background-position: -3% 8%, 5% -3%, -6% 4%, 3% -6%;
+    }
+    75% {
+      background-position: 2% -5%, -2% 6%, 4% -3%, -5% 3%;
+    }
+  }
+
+  /* ── 触屏/鼠标光效 ── */
+  .cursor-glow {
+    position: fixed;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(220,180,200,0.2) 0%, transparent 70%);
+    z-index: 1;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .cursor-glow.active {
+    opacity: 1;
+  }
+
+  /* ── 返回链接 ── */
+  .back-link {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 20;
+    font-family: Georgia, serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    text-decoration: none;
+    letter-spacing: 2px;
+    transition: color 0.4s;
+  }
+
+  .back-link:hover { color: rgba(255,255,255,0.55); }
+
+  /* ── 标题 ── */
+  .page-title {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 6vw, 38px);
+    font-weight: 700;
+    color: rgba(240,235,220,0.7);
+    letter-spacing: 16px;
+    text-align: center;
+    animation: titleIn 1.4s ease both;
+  }
+
+  @keyframes titleIn {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .page-sub {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 10px;
+    color: rgba(220,200,180,0.3);
+    letter-spacing: 5px;
+    font-weight: 400;
+    margin-top: 10px;
+  }
+
+  /* ── 声波装饰 ── */
+  .soundwave {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.18;
+  }
+
+  .soundwave circle {
+    fill: none;
+    stroke: rgba(200,180,150,0.5);
+    stroke-width: 0.5;
+    transform-origin: center;
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  .soundwave circle:nth-child(1) { animation-delay: 0s; }
+  .soundwave circle:nth-child(2) { animation-delay: 0.5s; }
+  .soundwave circle:nth-child(3) { animation-delay: 1s; }
+  .soundwave circle:nth-child(4) { animation-delay: 1.5s; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0; r: 40; }
+    50% { opacity: 0.6; r: 100; }
+  }
+
+  .hint {
+    position: fixed;
+    bottom: 8vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: Georgia, serif;
+    font-size: 10px;
+    color: rgba(200,180,150,0.22);
+    letter-spacing: 3px;
+    animation: fadeIn 2s ease 1.2s both;
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .particle-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="flow-bg"></div>
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <svg class="soundwave" width="300" height="300" viewBox="0 0 300 300">
+    <circle cx="150" cy="150" r="40"/>
+    <circle cx="150" cy="150" r="40"/>
+    <circle cx="150" cy="150" r="40"/>
+    <circle cx="150" cy="150" r="40"/>
+  </svg>
+
+  <canvas class="particle-canvas" id="particleCanvas"></canvas>
+
+  <a class="back-link" href="subIndex.html">← 返回</a>
+
+  <div class="page-title">
+    锵锵
+    <span class="page-sub">a sound of resonance</span>
+  </div>
+
+  <div class="hint">触碰屏幕，色彩会随你流动</div>
+
+  <script>
+    (function() {
+      // ── 光标光效 ──
+      var glow = document.getElementById('cursorGlow');
+      var isActive = false;
+
+      function moveGlow(e) {
+        var x = e.touches ? e.touches[0].clientX : e.clientX;
+        var y = e.touches ? e.touches[0].clientY : e.clientY;
+        glow.style.left = x + 'px';
+        glow.style.top = y + 'px';
+        if (!isActive) {
+          isActive = true;
+          glow.classList.add('active');
+        }
+      }
+
+      function hideGlow() {
+        isActive = false;
+        glow.classList.remove('active');
+      }
+
+      document.addEventListener('mousemove', moveGlow);
+      document.addEventListener('touchmove', moveGlow);
+      document.addEventListener('mouseleave', hideGlow);
+      document.addEventListener('touchend', hideGlow);
+
+      // ── 设备能力检测 ──
+      function detectCapability() {
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        var cores = navigator.hardwareConcurrency || 4;
+        var area = w * h;
+
+        var score = 0;
+        if (area > 800000) score += 3;
+        else if (area > 400000) score += 2;
+        else score += 1;
+        if (dpr >= 2) score += 3;
+        else if (dpr >= 1.5) score += 2;
+        else score += 1;
+        if (cores >= 8) score += 4;
+        else if (cores >= 4) score += 3;
+        else if (cores >= 2) score += 2;
+        else score += 1;
+
+        var particleCount;
+        if (score >= 9) particleCount = 150;
+        else if (score >= 7) particleCount = 100;
+        else if (score >= 5) particleCount = 70;
+        else particleCount = 50;
+
+        return {
+          particleCount: particleCount,
+          drawLines: score >= 5,
+          renderScale: Math.min(dpr, 2)
+        };
+      }
+
+      // ── Particle 类 ──
+      function Particle(w, h) {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.6;
+        this.vy = (Math.random() - 0.5) * 0.6;
+        this.radius = 1.5 + Math.random() * 2.5;
+        this.hue = 200 + Math.random() * 160;
+        this.alpha = 0.4 + Math.random() * 0.4;
+      }
+
+      Particle.prototype.update = function(w, h, ix, iy, active, dt) {
+        var dx = ix - this.x;
+        var dy = iy - this.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (active && dist > 0) {
+          var nx = dx / dist;
+          var ny = dy / dist;
+          var forceMultiplier = dt * 0.06;
+
+          if (dist < 120) {
+            // 排斥区：粒子被推开
+            var force = (1 - dist / 120) * forceMultiplier * 2;
+            this.vx -= nx * force;
+            this.vy -= ny * force;
+          } else if (dist < 200) {
+            // 吸引区：粒子被拉近
+            var t = (dist - 120) / 80;
+            var force = Math.sin(t * Math.PI) * forceMultiplier * 1.2;
+            this.vx += nx * force;
+            this.vy += ny * force;
+          }
+        }
+
+        // 速度阻尼
+        this.vx *= 0.995;
+        this.vy *= 0.995;
+
+        // 速度限制
+        var speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        var maxSpeed = 1.2;
+        if (speed > maxSpeed) {
+          this.vx = (this.vx / speed) * maxSpeed;
+          this.vy = (this.vy / speed) * maxSpeed;
+        }
+
+        // 位置更新
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // 边界环绕
+        if (this.x < -10) this.x = w + 10;
+        if (this.x > w + 10) this.x = -10;
+        if (this.y < -10) this.y = h + 10;
+        if (this.y > h + 10) this.y = -10;
+      };
+
+      Particle.prototype.draw = function(ctx, scale) {
+        var r = this.radius * scale;
+        var gx = this.x * scale;
+        var gy = this.y * scale;
+        var grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, r);
+        grad.addColorStop(0, 'hsla(' + this.hue + ', 60%, 75%, ' + this.alpha + ')');
+        grad.addColorStop(0.5, 'hsla(' + this.hue + ', 50%, 60%, ' + (this.alpha * 0.4) + ')');
+        grad.addColorStop(1, 'hsla(' + this.hue + ', 40%, 50%, 0)');
+        ctx.beginPath();
+        ctx.arc(gx, gy, r, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      };
+
+      // ── ParticleEngine 类 ──
+      function ParticleEngine(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.raf = null;
+        this.lastTime = 0;
+        this.interactX = -1000;
+        this.interactY = -1000;
+        this.interactActive = false;
+        this.forceDecay = 0;
+      }
+
+      ParticleEngine.prototype._resize = function() {
+        var cap = detectCapability();
+        this.particleCount = cap.particleCount;
+        this.drawLines = cap.drawLines;
+        this.renderScale = cap.renderScale;
+        this.w = window.innerWidth;
+        this.h = window.innerHeight;
+        this.canvas.width = this.w * this.renderScale;
+        this.canvas.height = this.h * this.renderScale;
+        this.canvas.style.width = this.w + 'px';
+        this.canvas.style.height = this.h + 'px';
+        this.maxDist = Math.min(this.w, this.h) * 0.18;
+        this.maxDistSq = this.maxDist * this.maxDist;
+      };
+
+      ParticleEngine.prototype._createParticles = function() {
+        this.particles = [];
+        for (var i = 0; i < this.particleCount; i++) {
+          this.particles.push(new Particle(this.w, this.h));
+        }
+      };
+
+      ParticleEngine.prototype._render = function() {
+        var ctx = this.ctx;
+        var scale = this.renderScale;
+        var particles = this.particles;
+        var len = particles.length;
+
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 连线（x 轴排序优化）
+        if (this.drawLines && len > 1) {
+          var sorted = particles.slice().sort(function(a, b) { return a.x - b.x; });
+          var maxDist = this.maxDist;
+          ctx.lineWidth = 0.3 * scale;
+
+          for (var i = 0; i < len; i++) {
+            var pi = sorted[i];
+            for (var j = i + 1; j < len; j++) {
+              var pj = sorted[j];
+              if (pj.x - pi.x > maxDist) break;
+              var dx = pj.x - pi.x;
+              var dy = pj.y - pi.y;
+              var distSq = dx * dx + dy * dy;
+              if (distSq < this.maxDistSq) {
+                var alpha = (1 - Math.sqrt(distSq) / maxDist) * 0.15;
+                ctx.strokeStyle = 'rgba(180,160,200,' + alpha + ')';
+                ctx.beginPath();
+                ctx.moveTo(pi.x * scale, pi.y * scale);
+                ctx.lineTo(pj.x * scale, pj.y * scale);
+                ctx.stroke();
+              }
+            }
+          }
+        }
+
+        // 绘制粒子
+        for (var k = 0; k < len; k++) {
+          particles[k].draw(ctx, scale);
+        }
+      };
+
+      ParticleEngine.prototype._loop = function(timestamp) {
+        if (!this.raf) return;
+        if (!this.lastTime) this.lastTime = timestamp;
+        var dt = Math.min(timestamp - this.lastTime, 32);
+        this.lastTime = timestamp;
+
+        // 手指离开后力度指数衰减
+        if (!this.interactActive && this.forceDecay > 0.01) {
+          this.forceDecay *= 0.95;
+        }
+
+        var active = this.interactActive || this.forceDecay > 0.01;
+        var ix = this.interactX;
+        var iy = this.interactY;
+
+        for (var i = 0; i < this.particles.length; i++) {
+          this.particles[i].update(this.w, this.h, ix, iy, active, dt);
+        }
+
+        this._render();
+        this.raf = requestAnimationFrame(this._loop.bind(this));
+      };
+
+      ParticleEngine.prototype.start = function() {
+        if (this.raf) return;
+        this.lastTime = 0;
+        this.raf = requestAnimationFrame(this._loop.bind(this));
+      };
+
+      ParticleEngine.prototype.pause = function() {
+        if (this.raf) {
+          cancelAnimationFrame(this.raf);
+          this.raf = null;
+        }
+      };
+
+      ParticleEngine.prototype.resume = function() {
+        if (!this.raf) this.start();
+      };
+
+      // ── 初始化 ──
+      var canvas = document.getElementById('particleCanvas');
+      if (!canvas) return;
+
+      var engine = new ParticleEngine(canvas);
+      engine._resize();
+      engine._createParticles();
+      engine.start();
+
+      // ── 事件绑定 ──
+      function setInteract(x, y) {
+        engine.interactX = x;
+        engine.interactY = y;
+        engine.interactActive = true;
+        engine.forceDecay = 1;
+      }
+
+      function clearInteract() {
+        engine.interactActive = false;
+      }
+
+      document.addEventListener('mousemove', function(e) {
+        setInteract(e.clientX, e.clientY);
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function(e) {
+        if (e.touches.length > 0) {
+          setInteract(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      document.addEventListener('mouseleave', clearInteract);
+      document.addEventListener('touchend', clearInteract);
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          engine.pause();
+        } else {
+          engine.resume();
+        }
+      });
+
+      window.addEventListener('resize', function() {
+        engine._resize();
+        engine._createParticles();
+      });
+
+      window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+          engine._resize();
+          engine._createParticles();
+        }, 200);
+      });
+    })();
+  </script>
+
+</body>
+</html>
