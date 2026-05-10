@@ -1,0 +1,10 @@
+{
+  "name": "twenty-eleven",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "^2.3.3",
+    "@vercel/kv": "^1.0.0",
+    "busboy": "^1.6.0"
+  }
+}

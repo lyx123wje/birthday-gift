@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon-bw.jpg" type="image/jpeg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z21星云契约</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d0d;
+    color: #e8e4dc;
+    font-family: 'Noto Serif SC', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* 背景图层 */
+  .bg-layer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+    background: url('bg-admin.jpg') center/cover no-repeat;
+    opacity: 0.25;
+    filter: brightness(0.3) saturate(0.5) blur(2px);
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 420px;
+    width: 100%;
+    padding: 40px 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .title {
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 8px;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #e8e4dc;
+    text-shadow: 0 0 40px rgba(100,140,220,0.15);
+  }
+
+  /* 密码门 - 毛玻璃 */
+  .gate { display: block; }
+  .gate.hidden { display: none; }
+
+  .gate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    padding: 24px 20px;
+  }
+
+  .gate-form input {
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: #e8e4dc;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .gate-form input:focus {
+    border-color: rgba(100,140,220,0.25);
+  }
+
+  .gate-form input::placeholder {
+    color: rgba(255,255,255,0.12);
+  }
+
+  .btn {
+    background: rgba(100,140,220,0.05);
+    border: 1px solid rgba(100,140,220,0.12);
+    border-radius: 4px;
+    padding: 12px 24px;
+    color: #c8d8f0;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 6px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .btn:hover {
+    background: rgba(100,140,220,0.15);
+    border-color: rgba(100,140,220,0.3);
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  /* 编辑器 */
+  .editor { display: none; }
+  .editor.visible { display: block; }
+
+  .editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    padding: 24px 20px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(154,144,133,0.7);
+  }
+
+  .field input[type="text"],
+  .field input[type="datetime-local"] {
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: #e8e4dc;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .field input:focus {
+    border-color: rgba(100,140,220,0.25);
+  }
+
+  .field input::placeholder {
+    color: rgba(255,255,255,0.1);
+  }
+
+  /* 时间模式切换 */
+  .date-mode {
+    display: flex;
+    gap: 1px;
+    margin-bottom: 4px;
+  }
+
+  .date-mode-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.2);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 7px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 3px;
+  }
+
+  .date-mode-btn.active {
+    background: rgba(100,140,220,0.06);
+    border-color: rgba(100,140,220,0.18);
+    color: #c8d8f0;
+  }
+
+  .file-upload { position: relative; }
+
+  .file-input-hidden {
+    position: absolute;
+    width: 0.1px; height: 0.1px;
+    opacity: 0; overflow: hidden;
+    z-index: -1;
+  }
+
+  .file-label {
+    display: block;
+    background: rgba(255,255,255,0.01);
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 24px;
+    text-align: center;
+    color: rgba(255,255,255,0.15);
+    font-size: 12px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+  }
+
+  .file-label:hover {
+    border-color: rgba(100,140,220,0.2);
+    color: rgba(100,140,220,0.4);
+  }
+
+  .file-label.has-file {
+    border-style: solid;
+    border-color: rgba(100,140,220,0.2);
+    color: #c8d8f0;
+  }
+
+  .file-info {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.18);
+    text-align: center;
+    word-break: break-all;
+  }
+
+  .submit-btn { margin-top: 8px; }
+  .submit-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .msg {
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+    display: none;
+    margin-top: 12px;
+  }
+
+  .msg.visible { display: block; }
+  .msg.success { background: rgba(60,180,120,0.1); color: #a0d8b8; border: 1px solid rgba(60,180,120,0.2); }
+  .msg.error { background: rgba(220,80,80,0.1); color: #e0a0a0; border: 1px solid rgba(220,80,80,0.2); }
+
+  .logout-row {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .logout-link {
+    font-size: 11px;
+    color: rgba(255,255,255,0.15);
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: color 0.3s;
+  }
+
+  .logout-link:hover { color: rgba(220,80,80,0.5); }
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+
+<div class="container">
+
+  <div class="title">Z21星云契约</div>
+
+  <!-- 密码门 -->
+  <div class="gate" id="gate">
+    <form class="gate-form" id="gateForm">
+      <input type="password" id="passwordInput" placeholder="请输入密钥" autofocus>
+      <button type="submit" class="btn" id="gateBtn">签订</button>
+    </form>
+    <div class="msg" id="gateMsg"></div>
+  </div>
+
+  <!-- 发布编辑器 -->
+  <div class="editor" id="editor">
+    <form class="editor-form" id="editorForm">
+      <div class="field">
+        <label>你想穿梭的时间</label>
+        <div class="date-mode" id="dateMode">
+          <button type="button" class="date-mode-btn active" data-mode="now">此时此刻</button>
+          <button type="button" class="date-mode-btn" data-mode="manual">手动溯源</button>
+        </div>
+        <input type="datetime-local" id="dateInput" style="display:none">
+      </div>
+      <div class="field">
+        <label>文案（可选）</label>
+        <input type="text" id="captionInput" placeholder="想说点什么…">
+      </div>
+      <div class="field">
+        <label>图片 / 视频（可多选图片）</label>
+        <div class="file-upload">
+          <input type="file" class="file-input-hidden" id="fileInput"
+                 accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm"
+                 multiple>
+          <label for="fileInput" class="file-label" id="fileLabel">选择星辰碎片</label>
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+      </div>
+      <button type="submit" class="btn submit-btn" id="submitBtn">时序伊始</button>
+    </form>
+    <div class="msg" id="editorMsg"></div>
+    <div class="logout-row">
+      <span class="logout-link" id="logoutBtn">脱离星轨</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var password = '';
+  var dateMode = 'now';
+
+  // Elements
+  var gate = document.getElementById('gate');
+  var editor = document.getElementById('editor');
+  var gateForm = document.getElementById('gateForm');
+  var gateMsg = document.getElementById('gateMsg');
+  var gateBtn = document.getElementById('gateBtn');
+  var passwordInput = document.getElementById('passwordInput');
+  var editorForm = document.getElementById('editorForm');
+  var editorMsg = document.getElementById('editorMsg');
+  var dateInput = document.getElementById('dateInput');
+  var captionInput = document.getElementById('captionInput');
+  var fileInput = document.getElementById('fileInput');
+  var fileLabel = document.getElementById('fileLabel');
+  var fileInfo = document.getElementById('fileInfo');
+  var submitBtn = document.getElementById('submitBtn');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var dateModeEl = document.getElementById('dateMode');
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'msg visible ' + type;
+    setTimeout(function() { el.className = 'msg'; }, 4000);
+  }
+
+  // 时间模式切换
+  dateModeEl.addEventListener('click', function(e) {
+    var btn = e.target;
+    if (btn.tagName !== 'BUTTON') return;
+    dateMode = btn.dataset.mode;
+    dateModeEl.querySelectorAll('.date-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    dateInput.style.display = dateMode === 'manual' ? 'block' : 'none';
+  });
+
+  // 密码门：先验证再进入
+  gateForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var pwd = passwordInput.value;
+    if (!pwd) {
+      showMsg(gateMsg, '请输入密钥', 'error');
+      return;
+    }
+    gateBtn.disabled = true;
+    gateBtn.textContent = '签订中…';
+
+    fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'X-Admin-Password': pwd }
+    })
+    .then(function(res) {
+      if (res.status === 200) {
+        password = pwd;
+        gate.classList.add('hidden');
+        editor.classList.add('visible');
+        captionInput.focus();
+      } else {
+        showMsg(gateMsg, '密钥错误', 'error');
+        passwordInput.value = '';
+        passwordInput.focus();
+      }
+    })
+    .catch(function() {
+      showMsg(gateMsg, '星云连接失败', 'error');
+    })
+    .finally(function() {
+      gateBtn.disabled = false;
+      gateBtn.textContent = '签订';
+    });
+  });
+
+  // 文件选择
+  fileInput.addEventListener('change', function() {
+    var files = fileInput.files;
+    if (files.length === 0) {
+      fileLabel.textContent = '选择星辰碎片';
+      fileLabel.classList.remove('has-file');
+      fileInfo.textContent = '';
+      return;
+    }
+    var MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
+    var names = [];
+    var totalSize = 0;
+    var hasVideo = false;
+    var oversized = false;
+    for (var i = 0; i < files.length; i++) {
+      names.push(files[i].name);
+      totalSize += files[i].size;
+      if (files[i].type.startsWith('video/')) hasVideo = true;
+      if (files[i].size > MAX_FILE_SIZE) oversized = true;
+    }
+    var sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+    fileLabel.textContent = '已选 ' + files.length + ' 个碎片';
+    fileLabel.classList.add('has-file');
+    if (oversized) {
+      fileInfo.textContent = '文件过大（最大 4 MB），请重新选择';
+      fileInput.value = '';
+      fileLabel.textContent = '选择星辰碎片';
+      fileLabel.classList.remove('has-file');
+    } else if (hasVideo && files.length > 1) {
+      fileInfo.textContent = '视频只能单选，请重新选择';
+      fileInput.value = '';
+      fileLabel.textContent = '选择星辰碎片';
+      fileLabel.classList.remove('has-file');
+    } else {
+      fileInfo.textContent = files.length + ' 个文件 · ' + sizeMB + ' MB';
+    }
+  });
+
+  // 格式化日期
+  function formatDate(dateStr) {
+    var d = new Date(dateStr);
+    var year = d.getFullYear();
+    var month = d.getMonth() + 1;
+    var day = d.getDate();
+    var hours = String(d.getHours()).padStart(2, '0');
+    var mins = String(d.getMinutes()).padStart(2, '0');
+    var weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    return year + '.' + month + '.' + day + ' ' + weekdays[d.getDay()] + ' ' + hours + ':' + mins;
+  }
+
+  // 发布
+  editorForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var dateValue;
+    if (dateMode === 'manual') {
+      if (!dateInput.value) {
+        showMsg(editorMsg, '请选择时间', 'error');
+        return;
+      }
+      dateValue = formatDate(dateInput.value);
+    } else {
+      dateValue = formatDate(new Date().toISOString());
+    }
+
+    var files = fileInput.files;
+    if (files.length === 0) {
+      showMsg(editorMsg, '请选择文件', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '时序展开中…';
+
+    var formData = new FormData();
+    formData.append('date', dateValue);
+    formData.append('caption', captionInput.value);
+    for (var i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+
+    fetch('/api/save-post', {
+      method: 'POST',
+      headers: { 'X-Admin-Password': password },
+      body: formData
+    })
+    .then(function(res) {
+      return res.json().then(function(data) { return { status: res.status, data: data }; });
+    })
+    .then(function(result) {
+      if (result.status === 200) {
+        showMsg(editorMsg, '时序已记录', 'success');
+        captionInput.value = '';
+        fileInput.value = '';
+        fileLabel.textContent = '选择星辰碎片';
+        fileLabel.classList.remove('has-file');
+        fileInfo.textContent = '';
+      } else if (result.status === 401) {
+        showMsg(editorMsg, '密钥已失效，请刷新', 'error');
+      } else {
+        showMsg(editorMsg, result.data.error || '时序紊乱', 'error');
+      }
+    })
+    .catch(function(err) {
+      showMsg(editorMsg, '星云中断: ' + err.message, 'error');
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '时序伊始';
+    });
+  });
+
+  // 退出
+  logoutBtn.addEventListener('click', function() {
+    password = '';
+    passwordInput.value = '';
+    editor.classList.remove('visible');
+    gate.classList.remove('hidden');
+    passwordInput.focus();
+  });
+})();
+</script>
+
+</body>
+</html>

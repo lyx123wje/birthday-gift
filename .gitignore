@@ -2,3 +2,7 @@
 Thumbs.db
 *.log
 *_backup.*
+.vercel
+.env*.local
+nul
+朋友圈图片/

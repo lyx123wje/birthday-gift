@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="xiaoxiong.jpg" type="image/jpeg">
+<link rel="icon" href="favicon-bw.jpg" type="image/jpeg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>二十一一</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,11 +154,29 @@
     100% { opacity: 1; }
   }
 
+  /* ── 倒计时 ── */
+  .countdown-text {
+    position: fixed;
+    top: calc(50% + clamp(55px, 12vw, 90px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 2px;
+    pointer-events: none;
+    animation: fadeInLate 3s ease 2.5s both;
+  }
+
   /* ── 移动端适配 ── */
   @media (max-width: 500px) {
     .seal-svg {
       width: clamp(90px, 28vw, 140px);
       height: clamp(90px, 28vw, 140px);
+    }
+    .countdown-text {
+      top: calc(50% + clamp(50px, 14vw, 80px));
     }
   }
 </style>
@@ -187,6 +205,39 @@
   <!-- 底部提示 -->
   <div class="hint-text">一一21.0版本宇宙</div>
 
+  <!-- 倒计时 -->
+  <div class="countdown-text" id="countdown"></div>
+
+<script>
+(function() {
+  var el = document.getElementById('countdown');
+  var target = new Date('2026-05-18T00:00:00');
+
+  function pad2(n) { return n < 10 ? '0' + n : n; }
+  function pad3(n) { return (n < 100 ? '0' : '') + (n < 10 ? '0' : '') + n; }
+
+  function update() {
+    var now = new Date();
+    var diff = target - now;
+
+    if (diff <= 0) {
+      el.textContent = '一一21.0版本宇宙 · 已抵达';
+      return;
+    }
+
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    var ms = Math.floor(diff % 1000);
+
+    el.textContent = d + 'd ' + pad2(h) + 'h ' + pad2(m) + 'm ' + pad2(s) + 's ' + pad3(ms) + 'ms';
+  }
+
+  update();
+  setInterval(update, 50);
+})();
+</script>
 
 </body>
 </html>

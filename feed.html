@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="xiaoxiong.jpg" type="image/jpeg">
+<link rel="icon" href="favicon-bw.jpg" type="image/jpeg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>二十一一</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -87,6 +87,23 @@
     opacity: 0.5;
   }
 
+  .header-sep {
+    color: #000;
+    margin: 0 6px;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .header-link-external {
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.3s ease;
+  }
+
+  .header-link-external:hover {
+    opacity: 0.5;
+  }
+
   /* ── Feed 流 ── */
   .feed {
     padding: 28px 0 80px 0;
@@ -97,14 +114,17 @@
     margin-bottom: 72px;
     background: transparent;
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
-                transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform: translateY(36px) scale(0.94);
+    filter: blur(4px);
+    transition: opacity 1s cubic-bezier(0.16, 0.84, 0.44, 1),
+                transform 1s cubic-bezier(0.16, 0.84, 0.44, 1),
+                filter 1s cubic-bezier(0.16, 0.84, 0.44, 1);
   }
 
   .feed-item.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 
   /* 第一项初始可见 */
@@ -112,6 +132,7 @@
     margin-top: 24px;
     opacity: 1;
     transform: none;
+    filter: none;
   }
 
   .feed-image {
@@ -123,6 +144,31 @@
     background: #eae8e3;
     min-height: 160px;
     transition: filter 0.6s ease;
+  }
+
+  /* ── 多图横排滚动 ── */
+  .media-carousel {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    font-size: 0;
+  }
+
+  .media-carousel::-webkit-scrollbar { display: none; }
+
+  .media-carousel img {
+    display: inline-block;
+    width: 42%;
+    height: auto;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+    border: none;
+    vertical-align: top;
   }
 
   /* ── 视频容器 ── */
@@ -203,6 +249,34 @@
     background: transparent;
   }
 
+  /* ── 加载状态 ── */
+  .feed-loading {
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .feed-loading-inner {
+    display: inline-block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.18);
+    letter-spacing: 4px;
+    animation: loadingPulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes loadingPulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ── 空状态 ── */
+  .feed-empty {
+    text-align: center;
+    padding: 80px 0;
+    font-size: 13px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 3px;
+  }
+
   /* ── 移动端适配 ── */
   @media (max-width: 500px) {
     .wrapper { max-width: 100%; }
@@ -221,40 +295,12 @@
 
 <div class="wrapper">
 
-  <header class="sticky-header"><a href="index.html" class="header-link">二十一一</a></header>
+  <header class="sticky-header"><a href="index.html" class="header-link">二十一一</a><span class="header-sep">&amp;</span><a href="https://www.xiqianyangyi.com/feed" class="header-link-external">二六</a></header>
 
-  <main class="feed">
-
-    <!-- ====== Feed Item 1 ====== -->
-    <div class="feed-item">
-      <img class="feed-image"
-           src="moments/post3/img_20220102.jpg"
-           alt=""
-           loading="lazy">
-      <div class="feed-date">2022.1.2 &nbsp; 22:51</div>
-      <div class="feed-caption">( ⁃ᴗ• )</div>
+  <main class="feed" id="feedContainer">
+    <div class="feed-loading" id="feedLoading">
+      <div class="feed-loading-inner">加载中…</div>
     </div>
-
-    <!-- ====== Feed Item 2 ====== -->
-    <div class="feed-item">
-      <img class="feed-image"
-           src="moments/post2/img_20211204.jpg"
-           alt=""
-           loading="lazy">
-      <div class="feed-date">2021.12.4 &nbsp; 20:50</div>
-      <div class="feed-caption">见到想见的人啦</div>
-    </div>
-
-    <!-- ====== Feed Item 3 ====== -->
-    <div class="feed-item">
-      <div class="video-wrapper">
-        <video class="feed-image" src="moments/post1/video_20210411.mp4"
-               autoplay muted loop playsinline></video>
-        <div class="play-btn"></div>
-      </div>
-      <div class="feed-date">2021.4.11 &nbsp; 22:59</div>
-    </div>
-
   </main>
 
 </div>
@@ -310,21 +356,129 @@
     }
   });
 
-  // ── 朋友圈视频：htmlPreventDefault 拦截触控，手动切换播放/暂停/声音 ──
-  var wrappers = document.querySelectorAll('.video-wrapper');
-  wrappers.forEach(function(wrapper) {
-    var video = wrapper.querySelector('video');
-    var btn   = wrapper.querySelector('.play-btn');
+  // ═══════════════════════════════════════════════
+  // 动态加载帖子
+  // ═══════════════════════════════════════════════
+  var container = document.getElementById('feedContainer');
+  var loadingEl = document.getElementById('feedLoading');
 
+  function renderPosts(posts) {
+    loadingEl.remove();
+
+    if (!posts || posts.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'feed-empty';
+      empty.textContent = '还没有帖子';
+      container.appendChild(empty);
+      return;
+    }
+
+    posts.forEach(function(post, index) {
+      var item = document.createElement('div');
+      item.className = 'feed-item';
+
+      // 第一项初始可见
+      if (index === 0) {
+        item.classList.add('visible');
+        item.style.marginTop = '24px';
+        item.style.opacity = '1';
+        item.style.transform = 'none';
+        item.style.filter = 'none';
+      }
+
+      // 媒体元素
+      var mediaItems = post.media;
+      // 兼容旧数据
+      if (!mediaItems || mediaItems.length === 0) {
+        mediaItems = [{ type: post.mediaType, url: post.mediaUrl }];
+      }
+
+      // 多图轮播（全部是图片 & 数量 > 1）
+      var allImages = mediaItems.every(function(m) { return m.type === 'image'; });
+      if (allImages && mediaItems.length > 1) {
+        var carousel = document.createElement('div');
+        carousel.className = 'media-carousel';
+        mediaItems.forEach(function(m) {
+          var img = document.createElement('img');
+          img.src = m.url;
+          img.alt = '';
+          img.loading = 'lazy';
+          img.onerror = function() {
+            img.style.background = '#1a1a1a';
+            img.style.minHeight = '160px';
+          };
+          carousel.appendChild(img);
+        });
+        item.appendChild(carousel);
+      } else if (mediaItems[0].type === 'video') {
+        // 单个视频
+        var vidWrapper = document.createElement('div');
+        vidWrapper.className = 'video-wrapper';
+
+        var video = document.createElement('video');
+        video.className = 'feed-image';
+        video.src = mediaItems[0].url;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('x5-video-player-type', 'h5-page');
+        video.setAttribute('x5-video-player-fullscreen', 'false');
+        video.setAttribute('controlsList', 'nodownload nofullscreen');
+
+        var playBtn = document.createElement('div');
+        playBtn.className = 'play-btn';
+
+        vidWrapper.appendChild(video);
+        vidWrapper.appendChild(playBtn);
+        item.appendChild(vidWrapper);
+
+        setupVideoControls(video, playBtn);
+      } else {
+        // 单张图片
+        var img = document.createElement('img');
+        img.className = 'feed-image';
+        img.src = mediaItems[0].url;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.onerror = function() {
+          img.style.background = '#1a1a1a';
+          img.style.minHeight = '160px';
+        };
+        item.appendChild(img);
+      }
+
+      // 日期
+      var date = document.createElement('div');
+      date.className = 'feed-date';
+      date.innerHTML = post.date.replace(/ /, ' &nbsp; ');
+      item.appendChild(date);
+
+      // 文案
+      if (post.caption) {
+        var caption = document.createElement('div');
+        caption.className = 'feed-caption';
+        caption.textContent = post.caption;
+        item.appendChild(caption);
+      }
+
+      container.appendChild(item);
+    });
+
+    // 启动淡入动画观察器
+    setupScrollObserver();
+  }
+
+  // ── 视频控制 ──
+  function setupVideoControls(video, btn) {
     video.muted = true;
     video.loop = true;
 
-    // 自动播放静音 → 按钮保持可见（提示用户点按出声音）
     video.play().catch(function() {
       btn.classList.remove('hidden');
     });
 
-    // 核心：在 video 上监听 touchstart，preventDefault 阻止 Safari 原生行为
     function toggleVideo() {
       if (video.paused) {
         video.muted = false;
@@ -339,34 +493,50 @@
       toggleVideo();
     });
 
-    // PC 端用 click
     video.addEventListener('click', function(e) {
       e.preventDefault();
       toggleVideo();
     });
 
-    // 事件同步按钮
-    video.addEventListener('play',  function() {
+    video.addEventListener('play', function() {
       if (!video.muted) btn.classList.add('hidden');
     });
     video.addEventListener('pause', function() { btn.classList.remove('hidden'); });
     video.addEventListener('ended', function() { btn.classList.remove('hidden'); });
-  });
+  }
 
-  // ── Feed 淡入动画 ──
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
+  // ── 滚动淡入淡出（双向） ──
+  function setupScrollObserver() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        } else {
+          entry.target.classList.remove('visible');
+        }
+      });
+    }, { threshold: 0.01, rootMargin: '0px 0px 40px 0px' });
+
+    var items = container.querySelectorAll('.feed-item');
+    items.forEach(function(item, i) {
+      if (i === 0) return;
+      observer.observe(item);
     });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  }
 
-  var items = document.querySelectorAll('.feed-item');
-  items.forEach(function(item, i) {
-    if (i === 0) return;
-    observer.observe(item);
-  });
+  // ── 从 API 拉取 ──
+  fetch('/api/get-posts')
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(posts) {
+      renderPosts(posts);
+    })
+    .catch(function(err) {
+      console.error('加载帖子失败:', err);
+      loadingEl.innerHTML = '<div class="feed-empty">加载失败，请刷新重试</div>';
+    });
 })();
 </script>
 
