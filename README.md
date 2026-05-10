@@ -1,6 +1,6 @@
-# 易烊千玺风格个人网站 · 使用指南
+# 二十一一 · 使用指南
 
-基于 [xiqianyangyi.com](https://www.xiqianyangyi.com) 的设计风格复刻，一个极简的数字日记式个人网站。
+基于 [zhaoxinyi.com](https://www.zhaoxinyi.com) 的设计风格，一一21.0版本宇宙。
 
 ---
 
@@ -10,9 +10,7 @@
 yyqx/
 ├── index.html      ← 首页（起点）
 ├── subIndex.html   ← 导航枢纽
-├── feed.html       ← 动态流（核心）
-├── stream.html     ← 流芳（情绪投递）
-├── audio.html      ← 锵锵（音频空间）
+├── feed.html       ← 二十一一（核心）
 └── README.md       ← 本文件
 ```
 
@@ -43,24 +41,19 @@ python -m http.server 8080
        │ 点击印章
        ▼
 ┌──────────────┐
-│ subIndex.html│  导航枢纽 · 三个入口
+│ subIndex.html│  导航枢纽
 │  (导航页)    │
-└──┬───┬───┬──┘
-   │   │   │
-   ▼   ▼   ▼
- 发自  流  锵
- 天然  芳  锵
-   │
-   ▼
+└──────┬───────┘
+       │
+       ▼
 ┌──────────────┐
-│  feed.html   │  动态流 · 图片卡片 + 时间戳
+│  feed.html   │  二十一一 · 图片卡片 + 时间戳
 │  (核心页)    │
 └──────────────┘
 ```
 
 **返回路径：**
 - `feed.html` → 点击顶部"二十一一" → 回到 `index.html`
-- `stream.html` / `audio.html` → 点击左上角"← 返回" → 回到 `subIndex.html`
 
 ## 如何替换内容
 
@@ -89,7 +82,7 @@ python -m http.server 8080
   <!-- 图片加载失败的占位符 -->
   <div style="display:none;aspect-ratio:1/1;background:#1a1a1a;border-radius:1px;"></div>
 
-  <!-- 日期时间戳（精确到秒） -->
+  <!-- 日期时间戳 -->
   <div class="feed-date">2026.4.28 &nbsp; 02:15:33</div>
 
   <!-- 可选文字描述 -->
@@ -105,7 +98,7 @@ python -m http.server 8080
 
 ### 修改顶部标题
 
-`feed.html` 中搜索 `二十一一`，替换为你想要的文字（共 4 个字符效果最佳）。
+`feed.html` 中搜索 `二十一一`，替换为你想要的文字。
 
 `subIndex.html` 中的导航文字同理。
 
@@ -120,7 +113,7 @@ python -m http.server 8080
 | 移动端优先 | 内容宽度 460px，桌面端两侧为黑色边框 |
 | 毛玻璃头部 | `backdrop-filter: blur` 半透明模糊，滚动时图片可透出 |
 | 极简排版 | 卡片间无分割线，纯靠留白区分 |
-| 微小时间戳 | 10.5px 暖灰色衬线体，精确到秒 |
+| 微小时间戳 | 10.5px 暖灰色衬线体 |
 | 淡入动画 | IntersectionObserver 驱动，滚动时平滑出现 |
 | 无外部依赖 | 除 Google Fonts 外纯原生 HTML/CSS/JS |
 
@@ -135,4 +128,4 @@ python -m http.server 8080
 
 ## 自定义字体
 
-页面使用 Google Fonts 的 `Noto Serif SC`（思源宋体）。如需离线使用，可下载字体放到本地并修改 `@import` 为本地路径。
+页面使用 Google Fonts 的 `Noto Serif SC`（思源宋体）。如需离线使用，可下载字体放到本地并修改引用路径。
