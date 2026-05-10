@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="xiaoxiong.jpg" type="image/jpeg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>二十一一</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +20,19 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── 底图背景 ── */
+  .ma-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.35;
+    pointer-events: none;
+    filter: brightness(0.4) saturate(0.6);
   }
 
   /* ── 视频背景 ── */
@@ -76,7 +90,7 @@
     height: 100vh;
     z-index: 3;
     pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,30,0,0.25) 100%);
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,15,50,0.2) 100%);
   }
 
   /* ── 印章容器 ── */
@@ -112,12 +126,12 @@
   .seal-svg {
     width: clamp(100px, 22vw, 160px);
     height: clamp(100px, 22vw, 160px);
-    filter: drop-shadow(0 0 24px rgba(180,30,30,0.3));
+    filter: drop-shadow(0 0 24px rgba(60,120,200,0.3));
     transition: filter 0.6s ease;
   }
 
   .seal-container:hover .seal-svg {
-    filter: drop-shadow(0 0 40px rgba(200,40,40,0.5));
+    filter: drop-shadow(0 0 40px rgba(80,140,220,0.5));
   }
 
   /* ── 微小的提示文字 ── */
@@ -140,6 +154,21 @@
     100% { opacity: 1; }
   }
 
+  /* ── 浮动小熊 Logo ── */
+  .floating-logo {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    width: clamp(36px, 8vw, 50px);
+    height: clamp(36px, 8vw, 50px);
+    border-radius: 50%;
+    z-index: 20;
+    opacity: 0.45;
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px rgba(100,140,200,0.2));
+    transition: opacity 0.6s ease;
+  }
+
   /* ── 移动端适配 ── */
   @media (max-width: 500px) {
     .seal-svg {
@@ -150,6 +179,8 @@
 </style>
 </head>
 <body>
+
+  <img class="ma-bg" src="ma.jpg" alt="">
 
   <!-- 视频背景（可将 src 替换为真实视频路径） -->
   <video class="video-bg" autoplay muted loop playsinline
@@ -170,6 +201,8 @@
 
   <!-- 底部提示 -->
   <div class="hint-text">一一21.0版本宇宙</div>
+
+  <img class="floating-logo" src="xiaoxiong.jpg" alt="">
 
 </body>
 </html>
