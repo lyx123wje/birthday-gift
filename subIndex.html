@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>封闭货车</title>
+<title>二十一一</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -90,6 +90,77 @@
   .nav-item:nth-child(1) { animation-delay: 0.4s; }
   .nav-item:nth-child(2) { animation-delay: 0.6s; }
   .nav-item:nth-child(3) { animation-delay: 0.8s; }
+
+  /* ── 二十一一 狂草毛笔 + 飞白溅墨特效 ── */
+  .nav-link.calligraphy {
+    font-family: 'Liu Jian Mao Cao', 'Ma Shan Zheng', cursive;
+    font-weight: 400;
+    font-size: clamp(46px, 9vw, 62px);
+    letter-spacing: 4px;
+    line-height: 1;
+    position: relative;
+    /* 墨水洇染阴影 */
+    text-shadow:
+      2px 3px 2px rgba(0,0,0,0.35),
+      -1px -1px 4px rgba(0,0,0,0.12),
+      0 0 10px rgba(0,0,0,0.15);
+    /* 微微倾斜模拟手写 */
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+
+  /* 溅墨点装饰：右上 */
+  .nav-link.calligraphy::before {
+    content: '';
+    position: absolute;
+    top: -6px; right: -18px;
+    width: 3px; height: 3px;
+    background: rgba(200,50,42,0.55);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow:
+      8px 4px 0 1px rgba(200,50,42,0.4),
+      14px -2px 0 0 rgba(180,40,32,0.3),
+      -4px 12px 0 0.5px rgba(0,0,0,0.25),
+      6px 14px 0 0 rgba(0,0,0,0.2),
+      18px 10px 0 0 rgba(160,30,20,0.25),
+      -10px 6px 0 0 rgba(0,0,0,0.18),
+      22px 4px 0 0 rgba(0,0,0,0.15);
+  }
+
+  /* 溅墨点装饰：左下 */
+  .nav-link.calligraphy::after {
+    content: '';
+    position: absolute;
+    bottom: 8px; left: -14px;
+    width: 2px; height: 2px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow:
+      6px -4px 0 0.5px rgba(0,0,0,0.3),
+      12px -10px 0 0 rgba(0,0,0,0.2),
+      -8px -2px 0 0.5px rgba(200,50,42,0.25),
+      3px 8px 0 0 rgba(0,0,0,0.18),
+      16px 2px 0 0 rgba(0,0,0,0.12);
+  }
+
+  /* 鼠标悬停：恢复正向 + 放大 */
+  .nav-link.calligraphy:hover {
+    transform: rotate(0deg) scale(1.06);
+    text-shadow:
+      2px 3px 3px rgba(0,0,0,0.4),
+      -1px -1px 5px rgba(0,0,0,0.15),
+      0 0 16px rgba(200,50,42,0.3);
+    letter-spacing: 6px;
+    color: #e8c4a0;
+    animation: inkPulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes inkPulse {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(200,50,42,0.2)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(200,50,42,0.45)); }
+  }
 
   @keyframes navFadeIn {
     0%   { opacity: 0; transform: translateY(16px); }
@@ -206,21 +277,9 @@
     <nav>
       <ul class="nav-list">
         <li class="nav-item">
-          <a class="nav-link" href="feed.html">
-            发自天然
-            <span class="nav-sub">a diary of moments</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="stream.html">
-            流芳
-            <span class="nav-sub">whispers to the lake</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="audio.html">
-            锵锵
-            <span class="nav-sub">a sound of resonance</span>
+          <a class="nav-link calligraphy" href="feed.html">
+            二十一一
+            <span class="nav-sub" style="font-family:Georgia,serif;letter-spacing:5px;">a diary of moments</span>
           </a>
         </li>
       </ul>
@@ -228,7 +287,7 @@
 
   </div>
 
-  <div class="footer-mark">xiqianyangyi · 封闭货车</div>
+  <div class="footer-mark">zhaoxinyi · 二十一一</div>
 
 </body>
 </html>

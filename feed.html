@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>发自天然</title>
+<title>二十一一</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
@@ -22,17 +22,19 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ── 视频固定背景 ── */
+  /* ── 视频背景 · 完全不可交互 ── */
   .video-bg {
     position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 380px;
-    max-width: 100vw;
+    top: 0; left: 0;
+    width: 100vw;
     height: 100vh;
     object-fit: cover;
     z-index: 0;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    background: #0d0d0d;
   }
 
   /* ── 背景遮罩（让内容更清晰） ── */
@@ -122,10 +124,39 @@
     transition: filter 0.6s ease;
   }
 
-  video.feed-image {
+  /* ── 视频容器 ── */
+  .video-wrapper {
+    position: relative;
+    width: 50%;
+    margin: 0 auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .video-wrapper video.feed-image {
+    width: 100%;
+    margin: 0;
     pointer-events: auto;
     outline: none;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  /* 红色三角播放按钮（视觉装饰，不拦截触摸） */
+  .play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0; height: 0;
+    border-left: 28px solid rgba(200,50,42,0.85);
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    filter: drop-shadow(0 0 6px rgba(0,0,0,0.5));
+  }
+
+  .play-btn.hidden { opacity: 0; }
 
   /* 抽象画占位色 */
   .img-fallback-0 { background: #1a1a1a; aspect-ratio: 1/1; display:flex;align-items:center;justify-content:center; }
@@ -176,28 +207,27 @@
     .wrapper { max-width: 100%; }
     .feed-item { padding: 14px 12px; margin-bottom: 56px; }
     .feed-image { width: 60%; }
+    .video-wrapper { width: 60%; }
     .sticky-header { padding: 18px 16px 14px 16px; font-size: 20px; letter-spacing: 8px; }
   }
 </style>
 </head>
 <body>
 
-<video id="bgVideo" class="video-bg" autoplay muted loop playsinline preload="auto">
-  <source src="bg_video.mp4" type="video/mp4">
-</video>
+<!-- 背景视频由 JS 动态创建，避免 HTML 标签被夸克等浏览器拦截 -->
 
 <div class="bg-veil"></div>
 
 <div class="wrapper">
 
-  <header class="sticky-header"><a href="index.html" class="header-link">发自天然</a></header>
+  <header class="sticky-header"><a href="index.html" class="header-link">二十一一</a></header>
 
   <main class="feed">
 
     <!-- ====== Feed Item 1 ====== -->
     <div class="feed-item">
       <img class="feed-image"
-           src="朋友圈图片/3.( ⁃͈ᴗ•͈ ) 202201022251/微信图片_2026-05-10_030807_959.jpg"
+           src="moments/post3/img_20220102.jpg"
            alt=""
            loading="lazy">
       <div class="feed-date">2022.1.2 &nbsp; 22:51</div>
@@ -207,7 +237,7 @@
     <!-- ====== Feed Item 2 ====== -->
     <div class="feed-item">
       <img class="feed-image"
-           src="朋友圈图片/2.见到想见的人啦 202112042050/微信图片_2026-05-10_030413_134.jpg"
+           src="moments/post2/img_20211204.jpg"
            alt=""
            loading="lazy">
       <div class="feed-date">2021.12.4 &nbsp; 20:50</div>
@@ -216,9 +246,11 @@
 
     <!-- ====== Feed Item 3 ====== -->
     <div class="feed-item">
-      <video class="feed-image" autoplay muted loop playsinline preload="auto">
-        <source src="朋友圈图片/第一条（没文案 日期：2021四月11 22：59）/微信视频2026-05-10_030148_363.mp4" type="video/mp4">
-      </video>
+      <div class="video-wrapper">
+        <video class="feed-image" src="moments/post1/video_20210411.mp4"
+               autoplay muted loop playsinline></video>
+        <div class="play-btn"></div>
+      </div>
       <div class="feed-date">2021.4.11 &nbsp; 22:59</div>
     </div>
 
@@ -228,20 +260,100 @@
 
 <script>
 (function() {
-  // ── 强制播放背景视频 ──
-  var bgVideo = document.getElementById('bgVideo');
-  if (bgVideo) {
-    bgVideo.play().catch(function() {
-      // 如果 autoplay 被拦截，尝试用户交互后播放
-      document.addEventListener('click', function playOnce() {
-        bgVideo.play();
-        document.removeEventListener('click', playOnce);
-      }, { once: true });
-    });
+  // ═══════════════════════════════════════════════
+  // JS 动态创建背景视频 — 绕过浏览器 HTML 解析拦截
+  // ═══════════════════════════════════════════════
+  var bgVideo = document.createElement('video');
+  bgVideo.id = 'bgVideo';
+  bgVideo.className = 'video-bg';
+  bgVideo.src = 'bg_video.mp4';
+  bgVideo.muted = true;
+  bgVideo.loop = true;
+  bgVideo.autoplay = true;
+  bgVideo.playsInline = true;
+  bgVideo.setAttribute('webkit-playsinline', '');
+  bgVideo.setAttribute('x5-video-player-type', 'h5-page');
+  bgVideo.setAttribute('x5-video-player-fullscreen', 'false');
+  bgVideo.setAttribute('x5-video-orientation', 'portrait');
+  bgVideo.setAttribute('disablePictureInPicture', '');
+  bgVideo.setAttribute('disableRemotePlayback', '');
+  bgVideo.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+  bgVideo.setAttribute('oncontextmenu', 'return false');
+  bgVideo.setAttribute('preload', 'auto');
+  bgVideo.setAttribute('playsinline', '');
+
+  // 插入到 body 最前面
+  document.body.insertBefore(bgVideo, document.body.firstChild);
+
+  // 尝试自动播放
+  function tryPlay() {
+    var p = bgVideo.play();
+    if (p) {
+      p.catch(function() {
+        document.addEventListener('touchstart', playOnTouch, { once: true });
+        document.addEventListener('click', playOnTouch, { once: true });
+      });
+    }
   }
 
+  function playOnTouch() {
+    bgVideo.play().catch(function(){});
+  }
+
+  tryPlay();
+
+  // 页面从后台恢复时续播
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && bgVideo.paused) {
+      bgVideo.play().catch(function(){});
+    }
+  });
+
+  // ── 朋友圈视频：htmlPreventDefault 拦截触控，手动切换播放/暂停/声音 ──
+  var wrappers = document.querySelectorAll('.video-wrapper');
+  wrappers.forEach(function(wrapper) {
+    var video = wrapper.querySelector('video');
+    var btn   = wrapper.querySelector('.play-btn');
+
+    video.muted = true;
+    video.loop = true;
+
+    // 自动播放静音 → 按钮保持可见（提示用户点按出声音）
+    video.play().catch(function() {
+      btn.classList.remove('hidden');
+    });
+
+    // 核心：在 video 上监听 touchstart，preventDefault 阻止 Safari 原生行为
+    function toggleVideo() {
+      if (video.paused) {
+        video.muted = false;
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+
+    video.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      toggleVideo();
+    });
+
+    // PC 端用 click
+    video.addEventListener('click', function(e) {
+      e.preventDefault();
+      toggleVideo();
+    });
+
+    // 事件同步按钮
+    video.addEventListener('play',  function() {
+      if (!video.muted) btn.classList.add('hidden');
+    });
+    video.addEventListener('pause', function() { btn.classList.remove('hidden'); });
+    video.addEventListener('ended', function() { btn.classList.remove('hidden'); });
+  });
+
   // ── Feed 淡入动画 ──
-  const observer = new IntersectionObserver(function(entries) {
+  var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');

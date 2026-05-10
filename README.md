@@ -59,7 +59,7 @@ python -m http.server 8080
 ```
 
 **返回路径：**
-- `feed.html` → 点击顶部"发自天然" → 回到 `index.html`
+- `feed.html` → 点击顶部"二十一一" → 回到 `index.html`
 - `stream.html` / `audio.html` → 点击左上角"← 返回" → 回到 `subIndex.html`
 
 ## 如何替换内容
@@ -105,7 +105,7 @@ python -m http.server 8080
 
 ### 修改顶部标题
 
-`feed.html` 中搜索 `发自天然`，替换为你想要的文字（共 4 个字符效果最佳）。
+`feed.html` 中搜索 `二十一一`，替换为你想要的文字（共 4 个字符效果最佳）。
 
 `subIndex.html` 中的导航文字同理。
 
